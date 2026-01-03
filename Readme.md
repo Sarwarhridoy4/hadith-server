@@ -30,7 +30,7 @@
 <li>Vercel</li>
 </ul>
 
-[API](https://random-hadith-server.vercel.app/random-hadith)
+[API](https://hadith-server.vercel.app/api/random-hadith)
 
 # Search Hadith by:
 
