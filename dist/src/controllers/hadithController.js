@@ -49,16 +49,17 @@ const searchHadith = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         };
         const fieldToSearch = fieldMapping[searchField];
         if (!fieldToSearch) {
-            return res.status(400).json({ error: "Invalid search field" });
+            res.status(400).json({ error: "Invalid search field" });
+            return;
         }
         const matchingHadith = yield hadith_1.default.find({
             [fieldToSearch]: { $regex: searchQuery, $options: "i" },
         });
-        return res.json(matchingHadith);
+        res.json(matchingHadith);
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 exports.searchHadith = searchHadith;

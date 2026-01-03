@@ -1,4 +1,4 @@
-import {Request, Response} from 'express';
+import {Request, RequestHandler, Response} from 'express';
 
 import Hadith from "../models/hadith";
 
@@ -22,13 +22,14 @@ export const getRandomHadith = async (_req: Request, res: Response) => {
   }
 };
 
-export const searchHadith = async (req: Request, res: Response) => {
+export const searchHadith: RequestHandler = async (req, res) => {
   try {
     const { field, query } = req.params;
+
     const searchField = field.toLowerCase();
     const searchQuery = query.toLowerCase();
 
-    const fieldMapping: { [key: string]: string } = {
+    const fieldMapping: Record<string, string> = {
       hadith: "hadith",
       narrator: "narrator",
       source: "source",
@@ -38,17 +39,18 @@ export const searchHadith = async (req: Request, res: Response) => {
     const fieldToSearch = fieldMapping[searchField];
 
     if (!fieldToSearch) {
-      return res.status(400).json({ error: "Invalid search field" });
+      res.status(400).json({ error: "Invalid search field" });
+      return;
     }
 
     const matchingHadith = await Hadith.find({
       [fieldToSearch]: { $regex: searchQuery, $options: "i" },
     });
 
-    return res.json(matchingHadith);
+    res.json(matchingHadith);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

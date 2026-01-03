@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { getAllHadith, getRandomHadith, searchHadith, welcomeMessage } from '../controllers/hadithController';
 
 
+
 const router = Router();
 
 router.get('/all-hadith', getAllHadith);
