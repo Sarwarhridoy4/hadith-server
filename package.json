@@ -8,7 +8,8 @@
     "start": "node dist/server.js",
     "dev": "bun --watch server.ts",
     "prisma:generate": "bunx prisma generate --schema=./prisma/schema",
-    "prisma:push": "bunx prisma db push --schema=./prisma/schema"
+    "prisma:push": "bunx prisma db push --schema=./prisma/schema",
+    "postinstall": "prisma generate --schema=./prisma/schema"
   },
   "keywords": [],
   "author": "",
