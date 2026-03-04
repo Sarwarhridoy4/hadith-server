@@ -1,0 +1,14 @@
+model Hadith {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  hadith    String
+  narrator  String
+  source    String
+  reference String
+  createdAt DateTime? @default(now())
+  updatedAt DateTime?
+
+  @@index([narrator])
+  @@index([source])
+  @@index([reference])
+  @@map("hadiths")
+}
