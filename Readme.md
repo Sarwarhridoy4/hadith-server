@@ -1,64 +1,77 @@
-# Welcome to my Hadith server.
+# Hadith Server
 
-<b>Feature:</b>
-<ul>
-<li>Random hadith on each Refresh</li>
-<li>Search using fiedname:
-<ul>
-  <li>
-    hadith
-  </li>
-  <li>
-    narrator
-  </li>
-  <li>
-    source
-  </li>
-  <li>
-    reference
-  </li>
-</ul>
-</li>
-</ul>
+Modular Express + TypeScript API for hadith storage/search backed by MongoDB via Prisma.
 
+## Features
 
-<b>Tach Stack:</b>
-<ul>
-<li>MongoDB</li>
-<li>Mongoose</li>
-<li>Express</li>
-<li>Vercel</li>
-</ul>
+- Random hadith endpoint
+- List all hadiths
+- Search by `hadith`, `narrator`, `source`, or `reference`
+- Upload new hadith via API
+- Modular architecture (config / controller / repository / validator / types)
 
-[API](https://hadith-server.vercel.app/api/random-hadith)
+## Tech stack
 
-# Search Hadith by:
+- Bun
+- TypeScript
+- Express
+- Prisma (MongoDB)
+- Vercel
 
-<ul>
-<li>hadith</li>
-<li>narrator</li>
-<li>source</li>
-<li>reference</li>
-</ul>
+## Prisma schema layout (split schema)
 
-# API Structure:
-To get all hadith:
-<br/>
-<code>/all-hadith</code>
-<br/>
-To get a random hadith:
-<br/>
-<code>/random-hadith</code>
-<br/>
-<code>/search/:reference/:348</code>
-<br/>
-<code>/:category</code> refers fildname for search like:
+- [`prisma/schema/schema.prisma`](prisma/schema/schema.prisma)
+- [`prisma/schema/hadith.prisma`](prisma/schema/hadith.prisma)
+- [`prisma.config.ts`](prisma.config.ts)
 
-<ul>
-<li>/search/hadith/whatever-you-search</li>
-<li>/search/narrator/whatever-you-search</li>
-<li>/search/source/whatever-you-search</li>
-<li>/search/reference/whatever-you-search</li>
-</ul>
+## Setup
 
-<code>/:searchString</code> refers what to search in field
+1. Install dependencies:
+
+```bash
+bun install
+```
+
+2. Add environment variable:
+
+```env
+MONGODB_URI="your-mongodb-uri"
+```
+
+3. Generate Prisma client:
+
+```bash
+bun run prisma:generate
+```
+
+4. Push schema to DB:
+
+```bash
+bun run prisma:push
+```
+
+5. Start server:
+
+```bash
+bun run dev
+```
+
+## API
+
+Base path: `/api`
+
+- `GET /api/all-hadith`
+- `GET /api/random-hadith`
+- `GET /api/search/:field/:query`
+- `POST /api/upload-hadith`
+
+### Upload payload example
+
+```json
+{
+  "hadith": "Actions are judged by intentions.",
+  "narrator": "Umar ibn Al-Khattab",
+  "source": "Sahih Bukhari",
+  "reference": "Bukhari 1"
+}
+```

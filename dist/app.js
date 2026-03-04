@@ -5,13 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const database_1 = __importDefault(require("./src/config/database"));
 const hadithRoutes_1 = __importDefault(require("./src/routes/hadithRoutes"));
+require("./src/config/env");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
-// Connect to MongoDB
-(0, database_1.default)();
 // Use project routes
 app.use("/api", hadithRoutes_1.default);
 app.get("/", (req, res) => {

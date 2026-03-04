@@ -1,10 +1,18 @@
-import {Request, RequestHandler, Response} from 'express';
+import { Request, RequestHandler, Response } from "express";
+import { hadithRepository } from "../repositories/hadithRepository";
+import { HadithSearchField } from "../types/hadith";
+import { validateCreateHadithInput } from "../validators/hadithValidator";
 
-import Hadith from "../models/hadith";
+const SEARCHABLE_FIELDS: HadithSearchField[] = [
+  "hadith",
+  "narrator",
+  "source",
+  "reference",
+];
 
 export const getAllHadith = async (_req: Request, res: Response) => {
   try {
-    const hadiths = await Hadith.find({});
+    const hadiths = await hadithRepository.findAll();
     res.json(hadiths);
   } catch (error) {
     console.error(error);
@@ -14,8 +22,14 @@ export const getAllHadith = async (_req: Request, res: Response) => {
 
 export const getRandomHadith = async (_req: Request, res: Response) => {
   try {
-    const randomHadith = await Hadith.aggregate([{ $sample: { size: 1 } }]);
-    res.json(randomHadith[0]);
+    const randomHadith = await hadithRepository.findRandom();
+
+    if (!randomHadith) {
+      res.status(404).json({ error: "No hadith found" });
+      return;
+    }
+
+    res.json(randomHadith);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -26,26 +40,14 @@ export const searchHadith: RequestHandler = async (req, res) => {
   try {
     const { field, query } = req.params;
 
-    const searchField = field.toLowerCase();
-    const searchQuery = query.toLowerCase();
+    const searchField = field.toLowerCase() as HadithSearchField;
 
-    const fieldMapping: Record<string, string> = {
-      hadith: "hadith",
-      narrator: "narrator",
-      source: "source",
-      reference: "reference",
-    };
-
-    const fieldToSearch = fieldMapping[searchField];
-
-    if (!fieldToSearch) {
+    if (!SEARCHABLE_FIELDS.includes(searchField)) {
       res.status(400).json({ error: "Invalid search field" });
       return;
     }
 
-    const matchingHadith = await Hadith.find({
-      [fieldToSearch]: { $regex: searchQuery, $options: "i" },
-    });
+    const matchingHadith = await hadithRepository.searchByField(searchField, query);
 
     res.json(matchingHadith);
   } catch (error) {
@@ -56,4 +58,21 @@ export const searchHadith: RequestHandler = async (req, res) => {
 
 export const welcomeMessage = (_req: Request, res: Response) => {
   res.send("Welcome to my random hadith server");
+};
+
+export const uploadHadith: RequestHandler = async (req, res) => {
+  try {
+    const validation = validateCreateHadithInput(req.body);
+
+    if (!validation.isValid) {
+      res.status(400).json({ error: validation.message });
+      return;
+    }
+
+    const createdHadith = await hadithRepository.create(validation.data);
+    res.status(201).json(createdHadith);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };

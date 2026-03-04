@@ -8,15 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.welcomeMessage = exports.searchHadith = exports.getRandomHadith = exports.getAllHadith = void 0;
-const hadith_1 = __importDefault(require("../models/hadith"));
+exports.uploadHadith = exports.welcomeMessage = exports.searchHadith = exports.getRandomHadith = exports.getAllHadith = void 0;
+const hadithRepository_1 = require("../repositories/hadithRepository");
+const hadithValidator_1 = require("../validators/hadithValidator");
+const SEARCHABLE_FIELDS = [
+    "hadith",
+    "narrator",
+    "source",
+    "reference",
+];
 const getAllHadith = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const hadiths = yield hadith_1.default.find({});
+        const hadiths = yield hadithRepository_1.hadithRepository.findAll();
         res.json(hadiths);
     }
     catch (error) {
@@ -27,8 +31,12 @@ const getAllHadith = (_req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.getAllHadith = getAllHadith;
 const getRandomHadith = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const randomHadith = yield hadith_1.default.aggregate([{ $sample: { size: 1 } }]);
-        res.json(randomHadith[0]);
+        const randomHadith = yield hadithRepository_1.hadithRepository.findRandom();
+        if (!randomHadith) {
+            res.status(404).json({ error: "No hadith found" });
+            return;
+        }
+        res.json(randomHadith);
     }
     catch (error) {
         console.error(error);
@@ -40,21 +48,11 @@ const searchHadith = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         const { field, query } = req.params;
         const searchField = field.toLowerCase();
-        const searchQuery = query.toLowerCase();
-        const fieldMapping = {
-            hadith: "hadith",
-            narrator: "narrator",
-            source: "source",
-            reference: "reference",
-        };
-        const fieldToSearch = fieldMapping[searchField];
-        if (!fieldToSearch) {
+        if (!SEARCHABLE_FIELDS.includes(searchField)) {
             res.status(400).json({ error: "Invalid search field" });
             return;
         }
-        const matchingHadith = yield hadith_1.default.find({
-            [fieldToSearch]: { $regex: searchQuery, $options: "i" },
-        });
+        const matchingHadith = yield hadithRepository_1.hadithRepository.searchByField(searchField, query);
         res.json(matchingHadith);
     }
     catch (error) {
@@ -67,3 +65,19 @@ const welcomeMessage = (_req, res) => {
     res.send("Welcome to my random hadith server");
 };
 exports.welcomeMessage = welcomeMessage;
+const uploadHadith = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const validation = (0, hadithValidator_1.validateCreateHadithInput)(req.body);
+        if (!validation.isValid) {
+            res.status(400).json({ error: validation.message });
+            return;
+        }
+        const createdHadith = yield hadithRepository_1.hadithRepository.create(validation.data);
+        res.status(201).json(createdHadith);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+exports.uploadHadith = uploadHadith;
