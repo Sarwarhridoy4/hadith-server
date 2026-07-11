@@ -1,6 +1,6 @@
 # Hadith Server
 
-Modular Express + TypeScript API for hadith storage/search backed by MongoDB via Prisma.
+Modular Express + TypeScript API for hadith storage/search backed by MongoDB via Mongoose.
 
 ## Features
 
@@ -8,21 +8,15 @@ Modular Express + TypeScript API for hadith storage/search backed by MongoDB via
 - List all hadiths
 - Search by `hadith`, `narrator`, `source`, or `reference`
 - Upload new hadith via API
-- Modular architecture (config / controller / repository / validator / types)
+- Modular architecture (config / controller / repository / validator / types / model)
 
 ## Tech stack
 
 - Bun
 - TypeScript
 - Express
-- Prisma (MongoDB)
+- Mongoose (MongoDB)
 - Vercel
-
-## Prisma schema layout (split schema)
-
-- [`prisma/schema/schema.prisma`](prisma/schema/schema.prisma)
-- [`prisma/schema/hadith.prisma`](prisma/schema/hadith.prisma)
-- [`prisma.config.ts`](prisma.config.ts)
 
 ## Setup
 
@@ -38,19 +32,7 @@ bun install
 MONGODB_URI="your-mongodb-uri"
 ```
 
-3. Generate Prisma client:
-
-```bash
-bun run prisma:generate
-```
-
-4. Push schema to DB:
-
-```bash
-bun run prisma:push
-```
-
-5. Start server:
+3. Start server:
 
 ```bash
 bun run dev

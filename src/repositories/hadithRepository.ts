@@ -1,43 +1,17 @@
-import prisma from "../lib/prisma";
+import Hadith from "../models/hadithModel";
 import { CreateHadithInput, HadithSearchField } from "../types/hadith";
 
 export const hadithRepository = {
-  findAll: () =>
-    prisma.hadith.findMany({
-      orderBy: { createdAt: "desc" },
-    }),
+  findAll: async () =>
+    Hadith.find().sort({ createdAt: -1 }).lean(),
 
   findRandom: async () => {
-    const count = await prisma.hadith.count();
-
-    if (count === 0) {
-      return null;
-    }
-
-    const randomIndex = Math.floor(Math.random() * count);
-
-    const [hadith] = await prisma.hadith.findMany({
-      skip: randomIndex,
-      take: 1,
-    });
-
+    const [hadith] = await Hadith.aggregate([{ $sample: { size: 1 } }]);
     return hadith ?? null;
   },
 
   searchByField: (field: HadithSearchField, query: string) =>
-    prisma.hadith.findMany({
-      where: {
-        [field]: {
-          contains: query,
-          mode: "insensitive",
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
+    Hadith.find({ [field]: { $regex: query, $options: "i" } }).sort({ createdAt: -1 }).lean(),
 
-  create: (payload: CreateHadithInput) =>
-    prisma.hadith.create({
-      data: payload,
-    }),
+  create: (payload: CreateHadithInput) => Hadith.create(payload),
 };
-

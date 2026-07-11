@@ -1,13 +1,19 @@
 import express from "express";
 import cors from "cors";
 import hadithRoutes from "./src/routes/hadithRoutes";
+import { connect } from "./src/lib/mongoose";
 import "./src/config/env";
 
 const app = express();
+
+connect().catch((error) => {
+  console.error("Failed to connect to MongoDB:", error);
+  process.exit(1);
+});
+
 app.use(cors());
 app.use(express.json());
 
-// Use project routes
 app.use("/api", hadithRoutes);
 
 app.get("/", (req, res) => {
