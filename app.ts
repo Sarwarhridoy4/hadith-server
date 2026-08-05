@@ -20,6 +20,15 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+app.get("/info", (req, res) => {
+  res.status(200).json({
+    name: "daily-hadith",
+    version: "1.0.0",
+    env: process.env.NODE_ENV || "development",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.get("/", (req, res) => {
   const htmlContent = `
     <!DOCTYPE html>
