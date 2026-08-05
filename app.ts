@@ -16,6 +16,10 @@ app.use(express.json());
 
 app.use("/api", hadithRoutes);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.get("/", (req, res) => {
   const htmlContent = `
     <!DOCTYPE html>
